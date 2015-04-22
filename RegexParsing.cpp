@@ -9,51 +9,51 @@
 #include <string>
 #include "Regex.hpp"
 
-//using std::cout;
-//using std::cin;
-//using std::endl;
+using std::cin;
+using std::cout;
+using std::endl;
 
 int main(int argc, char* argv[]) {
     std::string s, rs;
     boost::regex re;
 
-    std::cout << "If you get errors when constructing the regex, see:\n";
-    std::cout << "http://www.boost.org/doc/libs/1_58_0/";
-    std::cout << "boost/regex/v4/error_type.hpp\n";
-    std::cout << std::endl;
+    cout << "If you get errors when constructing the regex, see:\n";
+    cout << "http://www.boost.org/doc/libs/1_58_0/";
+    cout << "boost/regex/v4/error_type.hpp\n" << endl;
 
-    std::cout << "Enter regex > ";
-    getline(std::cin, rs);
+//    cout << "Enter regex > ";
+//    getline(cin, rs);
+
+    rs = ".*log.c.166.*";
+
 
     try {
         re = boost::regex(rs);  // regex object is created with 
-        std::cout << "mark_count() is " << re.mark_count() << std::endl;
+        cout << "mark_count() is " << re.mark_count() << endl;
     } catch (boost::regex_error& exc) {
-        std::cout << "Regex constructor failed with code " << exc.code() << std::endl;
+        cout << "Regex constructor failed with code " << exc.code() << endl;
         exit(1);
     }
 
-    std::cout << "Enter line > ";
+//    cout << "Enter line > ";
 
-    while (getline(std::cin, s)) {
-        std::cout << std::endl;
+    while (getline(cin, s)) {
+//      cout << endl;
 
         boost::smatch matches;  // gets populated with results
         boost::regex_match(s, matches, re); 
 
-        std::cout << "matches[0].matched is ";
-        std::cout << (matches[0].matched ? "true" : "false") << std::endl;
+//        cout << "matches[0].matched is ";
+//        cout << (matches[0].matched ? "true" : "false") << endl;
 
         if (matches[0].matched) {
-            std::cout << "the matches were: ";
+            cout << "the matches were: ";
             for (unsigned i = 0; i < matches.size(); i++) {
-                std::cout << "index = " << i << " [";
-                std::cout << matches[i] << "] " << std::endl;
+                cout << "index = " << i << "[" << matches[i] << "] " << endl;
             }
         }
 
-        std::cout << std::endl;
-        std::cout << "Enter line > ";
+//        cout << endl << "Enter line > ";
     }
 
     return 0;
