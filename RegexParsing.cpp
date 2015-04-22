@@ -67,23 +67,32 @@ int main(int argc, char* argv[]) {
         ptime t1, t2;
 
         if (matches[0].matched) {
+            // get the date
             string date_iso = matches[YEAR] + matches[MONTH] + matches[DAY];
             date d(from_undelimited_string(date_iso));
-             
+            
+            // get the time
             string time_iso = date_iso + "T" + 
-                                matches[HOUR] + matches[MIN] + matches[DAY];
+                         matches[HOUR] + matches[MIN] + matches[DAY];
             ptime t(from_iso_string(time_iso));
 
             // "log.c.166" was found - means boot has started
             if (matches[BOOT_STARTED] != "") {
                 is_booting = true;
                 t1 = t;
+                cout << endl << line_num << "(device-example-log): " << t;
+                cout << " Boot Start" << endl; 
             
             }
 
             // "oejs.Abstr" was found - means boot has ended
             if (matches[BOOT_ENDED] != "") {
                 is_booting = false;
+                t2 = t;
+                cout << line_num << "(device-example-log): " << t;
+                cout << " Boot Completed" << endl; 
+            
+
             }
 
 
