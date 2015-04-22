@@ -58,24 +58,25 @@ int main(int argc, char* argv[]) {
         ptime t1, t2;
 
         if (matches[0].matched) {
-            string time_str(matches[DATE_TIME]);
-            ptime time(time_from_string(time_str));
+            string time_str = matches[DATE_TIME] + "." + matches[MILLI];
+            cout << time_str;
+//          ptime t(time_from_string(time_str));
 
             // "log.c.166" was found - means boot has started
             if (matches[START_BOOT] != "" ) {
                 is_booting = true;   
-                t1 = time;
+  //              t1 = t;
                 cout << line_num;
-                cout << t1;
+    //            cout << t1;
                 cout << " Boot started" << endl;
             }
             
             // "oejs.Abstr" was found - means boot has ended
             if (matches[END_BOOT] != "") { 
                 is_booting = false;
-                t2 = time;
+  //              t2 = t;
                 cout << line_num;
-                cout << t2;
+   //             cout << t2;
                 cout << " Boot ended" << endl;
             }
 /*
@@ -84,8 +85,8 @@ int main(int argc, char* argv[]) {
             for (unsigned i = 0; i < matches.size(); i++) {
                 cout << endl << "index = " << i << "[" << matches[i] << "] ";
             }
-  */          cout << endl << endl;
-        }
+            cout << endl << endl;
+*/      }
     }
 
     return 0;
