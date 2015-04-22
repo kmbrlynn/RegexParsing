@@ -4,7 +4,7 @@ CFLAGS = -Wall -Werror -ansi -pedantic -g
 all: ps7a
 
 ps7a: RegexParsing.o
-	$(CC) $(FLAGS) -o ps7a RegexParsing.o -lboost_regex
+	$(CC) $(FLAGS) -o ps7a RegexParsing.o -lboost_regex -lboost_date_time
 
 # ==============================================================================
 RegexParsing.o: RegexParsing.cpp Regex.cpp Regex.hpp
