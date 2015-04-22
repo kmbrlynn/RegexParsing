@@ -1,4 +1,4 @@
-CC = g++
+CC = g++ -std=c++0x
 CFLAGS = -Wall -Werror -ansi -pedantic -g
 
 all: ps7a
