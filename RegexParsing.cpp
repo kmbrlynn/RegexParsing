@@ -10,6 +10,7 @@
 #include <string>
 #include "Regex.hpp"
 
+using std::string;
 using std::cin;
 using std::cout;
 using std::endl;
@@ -23,15 +24,14 @@ const int HOUR = 4;
 const int MIN = 5;
 const int SEC = 6;
 const int MILLI = 9;
-const int STARTED = 11;
-const int ENDED = 12;
-const string EMPTY = "";
+const int BOOT_STARTED = 11;
+const int BOOT_ENDED = 12;
 
 int main(int argc, char* argv[]) {
     std::string line_str, regex_str;
     boost::regex re;
     int line_num = 1;
-    bool server_has_started = false;
+    bool is_booting = false;
 
     cout << "If you get errors when constructing the regex, see:\n";
     cout << "http://www.boost.org/doc/libs/1_58_0/";
@@ -64,17 +64,30 @@ int main(int argc, char* argv[]) {
 
         boost::smatch matches;
         boost::regex_match(line_str, matches, re); 
+        ptime t1, t2;
 
         if (matches[0].matched) {
-            if (server_has_started) {
-                if (matches[STARTED] != EMPTY) {
-              
-                }    
-            }
-            
-            if (!server_has_started) {
+            string date_iso = matches[YEAR] + matches[MONTH] + matches[DAY];
+            date d(from_undelimited_string(date_iso));
+             
+            string time_iso = date_iso + "T" + 
+                                matches[HOUR] + matches[MIN] + matches[DAY];
+            ptime t(from_iso_string(time_iso));
 
+            // "log.c.166" was found - means boot has started
+            if (matches[BOOT_STARTED] != "") {
+                is_booting = true;
+                t1 = t;
+            
             }
+
+            // "oejs.Abstr" was found - means boot has ended
+            if (matches[BOOT_ENDED] != "") {
+                is_booting = false;
+            }
+
+
+/*
 
             cout << "Line number is: " << line_num << endl;
             cout << "the matches are: " << endl;
@@ -82,6 +95,7 @@ int main(int argc, char* argv[]) {
                 cout << endl << "index = " << i << "[" << matches[i] << "] ";
             }
             cout << endl << endl;
+*/
         }
     }
 
