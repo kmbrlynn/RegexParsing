@@ -33,9 +33,12 @@ int main(int argc, char* argv[]) {
          "([0-9]{2}):"          // hour  [4]
          "([0-9]{2}):"          // min   [5]
          "([0-9]{2})"           // sec   [6]   
-
-         "(.*log.c.166.*|"     // start [7]
-         ".*oejs.Abstr.*)";    // ended [8]
+                                // ========== subgroup [7]
+         "((: )|"               // empty [8]
+         ".([0-9]{3}))"         // milli [9]
+                                // ========== subgroup [10]
+         "((.*log.c.166.*)|"    // start [11]
+         "(.*oejs.Abstr.*))";   // ended [12]
 
     try {
         re = boost::regex(rs);  // regex object is created with 
