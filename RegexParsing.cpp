@@ -78,9 +78,14 @@ int main(int argc, char* argv[]) {
 
             // "log.c.166" was found - means boot has started
             if (matches[BOOT_STARTED] != "") {
+                if (is_booting == true ) {
+                    cout << "*** Incomplete boot ***" << endl;
+                }
+
                 is_booting = true;
                 t1 = t;
-                cout << endl << line_num << "(device-example-log): " << t;
+                cout << endl << "=== Device boot ===" << endl;
+                cout << line_num << "(device-example-log): " << t;
                 cout << " Boot Start" << endl; 
             
             }
