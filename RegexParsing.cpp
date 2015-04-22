@@ -5,6 +5,7 @@
 //      Thu Apr 16 11:08:45 2015
 
 #include <boost/regex.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include <iostream>
 #include <string>
 #include "Regex.hpp"
@@ -12,6 +13,8 @@
 using std::cin;
 using std::cout;
 using std::endl;
+using namespace boost::posix_time;
+using namespace boost::gregorian;
 
 int main(int argc, char* argv[]) {
     std::string s, rs;
@@ -24,8 +27,15 @@ int main(int argc, char* argv[]) {
 //    cout << "Enter regex > ";
 //    getline(cin, rs);
 
-    rs = ".*log.c.166.*";
+    rs = "([0-9]{4})-"          // year  [1]
+         "([0-9]{2})-"          // month [2]
+         "([0-9]{2}) "          // day   [3]
+         "([0-9]{2}):"          // hour  [4]
+         "([0-9]{2}):"          // min   [5]
+         "([0-9]{2})"           // sec   [6]   
 
+         "(.*log.c.166.*|"     // start [7]
+         ".*oejs.Abstr.*)";    // ended [8]
 
     try {
         re = boost::regex(rs);  // regex object is created with 
@@ -51,6 +61,7 @@ int main(int argc, char* argv[]) {
             for (unsigned i = 0; i < matches.size(); i++) {
                 cout << "index = " << i << "[" << matches[i] << "] " << endl;
             }
+            cout << endl << endl;
         }
 
 //        cout << endl << "Enter line > ";
