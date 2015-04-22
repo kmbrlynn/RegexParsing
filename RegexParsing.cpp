@@ -72,16 +72,17 @@ int main(int argc, char* argv[]) {
             date d(from_undelimited_string(date_iso));
             
             // get the time
-            string time_iso = date_iso + "T" + 
-                         matches[HOUR] + matches[MIN] + matches[DAY];
+            string time_iso = matches[YEAR] + matches[MONTH] + matches[DAY] +
+                        "T" + matches[HOUR] + matches[MIN] + matches[SEC];
+            
             ptime t(from_iso_string(time_iso));
+
+            // check for an incomplete boot
+            if (matches[BOOT_STARTED] != "" && (is_booting || EOF))
+                cout << "*** Incomplete boot ***" << endl;
 
             // "log.c.166" was found - means boot has started
             if (matches[BOOT_STARTED] != "") {
-                if (is_booting == true ) {
-                    cout << "*** Incomplete boot ***" << endl;
-                }
-
                 is_booting = true;
                 t1 = t;
                 cout << endl << "=== Device boot ===" << endl;
@@ -96,11 +97,17 @@ int main(int argc, char* argv[]) {
                 t2 = t;
                 cout << line_num << "(device-example-log): " << t;
                 cout << " Boot Completed" << endl; 
-            
+                
+                // convert milliseconds and add to t2
+                // subtract t1 from t2
+                // output difference
+               
+                string time_plus = time_iso + matches[MILLI];
+                ptime time_plus_milli(from_iso_string(time_plus));
+                time_duration td = time_plus_milli - t1;
+                cout << "\tBoot time: " << t2-t1 << endl;
 
             }
-
-
 /*
 
             cout << "Line number is: " << line_num << endl;
