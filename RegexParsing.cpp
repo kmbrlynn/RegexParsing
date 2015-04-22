@@ -63,15 +63,14 @@ int main(int argc, char* argv[]) {
             ptime t(time_from_string(time_str));
 
             // check for an incomplete boot
-            if (matches[BOOT_STARTED] != "" && (is_booting || EOF))
-                cout << "*** Incomplete boot ***";
-            
+            if (matches[BOOT_STARTED] != "" && (is_booting ==true || EOF))
+                cout << "*** Incomplete boot ***" << endl;            
 
             // "log.c.166" was found - means boot has started
             if (matches[BOOT_STARTED] != "" ) {
                 is_booting = true;   
                 t1 = t;
-                cout << "=== Device boot ===" << endl;              
+                cout << endl << "=== Device boot ===" << endl;              
                 cout << line_num << "(device-log): " << t1;
                 cout << " Boot started" << endl;
             }
