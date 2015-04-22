@@ -10,46 +10,37 @@
 #include <string>
 #include "Regex.hpp"
 
+using std::string;
 using std::cin;
 using std::cout;
 using std::endl;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
-const int YEAR = 1;
-const int MONTH = 2;
-const int DAY = 3;
-const int HOUR = 4;
-const int MIN = 5;
-const int SEC = 6;
-const int MILLI = 9;
-const int STARTED = 11;
-const int ENDED = 12;
-const string EMPTY = "";
+const int DATE_TIME = 1;
+const int MILLI = 4;
+const int START_BOOT = 6;
+const int END_BOOT = 7;
 
 int main(int argc, char* argv[]) {
-    std::string line_str, regex_str;
+    string line_str, regex_str;
     boost::regex re;
     int line_num = 1;
-    bool server_has_started = false;
+    bool is_booting = false;
 
     cout << "If you get errors when constructing the regex, see:\n";
     cout << "http://www.boost.org/doc/libs/1_58_0/";
     cout << "boost/regex/v4/error_type.hpp\n" << endl;
 
-    regex_str = 
-        "([0-9]{4})-"          // year  [1]
-        "([0-9]{2})-"          // month [2]
-        "([0-9]{2}) "          // day   [3]
-        "([0-9]{2}):"          // hour  [4]
-        "([0-9]{2}):"          // min   [5]
-        "([0-9]{2})"           // sec   [6]   
-                               // ========== subgroup [7]
-        "((: )|"               // empty [8]
-        ".([0-9]{3}))"         // milli [9]
-                               // ========== subgroup [10]
-        "((.*log.c.166.*)|"    // start [11]
-        "(.*oejs.Abstr.*))";   // ended [12]
+    regex_str =                                     //   line           [0]
+        "([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})"        
+                                                    //   date/time      [1]
+                                                    // subgroup ----------- [2]
+        "((: )|"                                    //   empty          [3]
+        ".([0-9]{3}))"                              //   mil            [4]
+                                                    // subgroup ------------[5]
+        "((.*log.c.166.*)|"                         //   boot start     [6]
+        "(.*oejs.Abstr.*))";                        //   boot end       [7]
 
     try {
         re = boost::regex(regex_str); 
@@ -61,27 +52,39 @@ int main(int argc, char* argv[]) {
 
     while (getline(cin, line_str)) {
         line_num++;
-
+        
         boost::smatch matches;
         boost::regex_match(line_str, matches, re); 
+        ptime t1, t2;
 
         if (matches[0].matched) {
-            if (server_has_started) {
-                if (matches[STARTED] != EMPTY) {
-              
-                }    
+            string time_str(matches[DATE_TIME]);
+            ptime time(time_from_string(time_str));
+
+            // "log.c.166" was found - means boot has started
+            if (matches[START_BOOT] != "" ) {
+                is_booting = true;   
+                t1 = time;
+                cout << line_num;
+                cout << t1;
+                cout << " Boot started" << endl;
             }
             
-            if (!server_has_started) {
-
+            // "oejs.Abstr" was found - means boot has ended
+            if (matches[END_BOOT] != "") { 
+                is_booting = false;
+                t2 = time;
+                cout << line_num;
+                cout << t2;
+                cout << " Boot ended" << endl;
             }
-
+/*
             cout << "Line number is: " << line_num << endl;
             cout << "the matches are: " << endl;
             for (unsigned i = 0; i < matches.size(); i++) {
                 cout << endl << "index = " << i << "[" << matches[i] << "] ";
             }
-            cout << endl << endl;
+  */          cout << endl << endl;
         }
     }
 
