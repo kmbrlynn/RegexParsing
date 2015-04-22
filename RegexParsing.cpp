@@ -16,59 +16,93 @@ using std::endl;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
+const int YEAR = 1;
+const int MONTH = 2;
+const int DAY = 3;
+const int HOUR = 4;
+const int MIN = 5;
+const int SEC = 6;
+const int MILLI = 9;
+const int STARTED = 11;
+const int ENDED = 12;
+const string EMPTY = "";
+
 int main(int argc, char* argv[]) {
-    std::string s, rs;
+    std::string line_str, regex_str;
     boost::regex re;
+    int line_num = 1;
+    bool server_has_started = false;
 
     cout << "If you get errors when constructing the regex, see:\n";
     cout << "http://www.boost.org/doc/libs/1_58_0/";
     cout << "boost/regex/v4/error_type.hpp\n" << endl;
 
-//    cout << "Enter regex > ";
-//    getline(cin, rs);
-
-    rs = "([0-9]{4})-"          // year  [1]
-         "([0-9]{2})-"          // month [2]
-         "([0-9]{2}) "          // day   [3]
-         "([0-9]{2}):"          // hour  [4]
-         "([0-9]{2}):"          // min   [5]
-         "([0-9]{2})"           // sec   [6]   
-                                // ========== subgroup [7]
-         "((: )|"               // empty [8]
-         ".([0-9]{3}))"         // milli [9]
-                                // ========== subgroup [10]
-         "((.*log.c.166.*)|"    // start [11]
-         "(.*oejs.Abstr.*))";   // ended [12]
+    regex_str = 
+        "([0-9]{4})-"          // year  [1]
+        "([0-9]{2})-"          // month [2]
+        "([0-9]{2}) "          // day   [3]
+        "([0-9]{2}):"          // hour  [4]
+        "([0-9]{2}):"          // min   [5]
+        "([0-9]{2})"           // sec   [6]   
+                               // ========== subgroup [7]
+        "((: )|"               // empty [8]
+        ".([0-9]{3}))"         // milli [9]
+                               // ========== subgroup [10]
+        "((.*log.c.166.*)|"    // start [11]
+        "(.*oejs.Abstr.*))";   // ended [12]
 
     try {
-        re = boost::regex(rs);  // regex object is created with 
-        cout << "mark_count() is " << re.mark_count() << endl;
+        re = boost::regex(regex_str); 
+        cout << "mark_count() is: " << re.mark_count() << endl;
     } catch (boost::regex_error& exc) {
         cout << "Regex constructor failed with code " << exc.code() << endl;
         exit(1);
     }
 
-//    cout << "Enter line > ";
+    while (getline(cin, line_str)) {
+        line_num++;
 
-    while (getline(cin, s)) {
-//      cout << endl;
-
-        boost::smatch matches;  // gets populated with results
-        boost::regex_match(s, matches, re); 
-
-//        cout << "matches[0].matched is ";
-//        cout << (matches[0].matched ? "true" : "false") << endl;
+        boost::smatch matches;
+        boost::regex_match(line_str, matches, re); 
 
         if (matches[0].matched) {
-            cout << "the matches were: ";
+            if (server_has_started) {
+                if (matches[STARTED] != EMPTY) {
+              
+                }    
+            }
+            
+            if (!server_has_started) {
+
+            }
+
+            cout << "Line number is: " << line_num << endl;
+            cout << "the matches are: " << endl;
             for (unsigned i = 0; i < matches.size(); i++) {
-                cout << "index = " << i << "[" << matches[i] << "] " << endl;
+                cout << endl << "index = " << i << "[" << matches[i] << "] ";
             }
             cout << endl << endl;
         }
-
-//        cout << endl << "Enter line > ";
     }
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
