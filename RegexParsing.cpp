@@ -35,11 +35,11 @@ int main(int argc, char* argv[]) {
     boost::regex re;
     int line_num = 1;
     bool is_booting = false;
-
+/*
     cout << "If you get errors when constructing the regex, see:\n";
     cout << "http://www.boost.org/doc/libs/1_58_0/";
     cout << "boost/regex/v4/error_type.hpp\n" << endl;
-
+*/
     regex_str =                    //   line           [0]
         "([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})"        
                                    //   date/time      [1]
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
 
     try {
         re = boost::regex(regex_str); 
-        cout << "mark_count() is: " << re.mark_count() << endl;
+        // cout << "mark_count() is: " << re.mark_count() << endl;
     } catch (boost::regex_error& exc) {
         cout << "Regex constructor failed with code " << exc.code() << endl;
         exit(1);
@@ -66,16 +66,13 @@ int main(int argc, char* argv[]) {
 
     inf.open(in_filename);
     if (inf.is_open()) {
-        while (getline(inf, line_str)) {
-            line_num++;
-        
+        while (getline(inf, line_str)) { 
             boost::smatch matches;
             boost::regex_match(line_str, matches, re); 
             ptime t1, t2;
 
             if (matches[0].matched) {
-                //  cout << "regex for date-time slot is: " << matches[DATE_TIME] << endl;
-                std::string time_str = matches[DATE_TIME];
+                std::string time_str = matches[DATE_TIME] + "." + matches[MILLI];
                 ptime t(time_from_string(time_str));
 
                 // check for an incomplete boot
@@ -87,7 +84,7 @@ int main(int argc, char* argv[]) {
                     is_booting = true;   
                     t1 = t;
                     outf << endl << "=== Device boot ===" << endl;              
-                    outf << line_num << "(device-log): " << t1;
+                    outf << line_num << "(" << in_filename << ") " << time_str;
                     outf << " Boot started" << endl;
                 }
             
@@ -95,19 +92,25 @@ int main(int argc, char* argv[]) {
                 if (matches[BOOT_ENDED] != "") { 
                     is_booting = false;
                     t2 = t;
-                    outf << line_num << "(device-log): " << t2;
+                    outf << line_num << "(" << in_filename << ") " << time_str;
                     outf << " Boot completed" << endl;
  
                     time_duration td;
+                    cout << "t1 is: " << t1 << endl;
+                    cout << "t2 is: " << t2 << endl;
                     td = t2 - t1;
-                    //  td = t - t;
-                    outf << "\tBoot time: " << td << endl;
-            
+                    outf << "\tBoot time: " << td.minutes();
+                    outf << ":" << td.seconds() << ":" << td.fractional_seconds();
+                    outf << endl;
                 }
             }
+
+            line_num++;
         }
+
         inf.close();
         outf.close();
+    
     } else {
         std::string inf_err = "Unable to open file: " + in_filename;
         throw std::runtime_error(inf_err);
@@ -115,22 +118,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
