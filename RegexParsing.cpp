@@ -6,6 +6,8 @@
 
 #include <boost/regex.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
+#include "boost/date_time/gregorian/gregorian.hpp"
+#include <fstream>
 #include <iostream>
 #include <string>
 #include "Regex.hpp"
@@ -58,12 +60,12 @@ int main(int argc, char* argv[]) {
         ptime t1, t2;
 
         if (matches[0].matched) {
-            string time_str = matches[DATE_TIME] + "." + matches[MILLI];
-            cout << time_str;
+          //  cout << "regex for date-time slot is: " << matches[DATE_TIME] << endl;
+            string time_str = matches[DATE_TIME];
             ptime t(time_from_string(time_str));
 
             // check for an incomplete boot
-            if (matches[BOOT_STARTED] != "" && (is_booting ==true || EOF))
+            if (matches[BOOT_STARTED] != "" && is_booting)
                 cout << "*** Incomplete boot ***" << endl;            
 
             // "log.c.166" was found - means boot has started
@@ -81,6 +83,12 @@ int main(int argc, char* argv[]) {
                 t2 = t;
                 cout << line_num << "(device-log): " << t2;
                 cout << " Boot completed" << endl;
+ 
+                time_duration td;
+                td = t2 - t1;
+           //  td = t - t;
+                cout << "\tBoot time: " << td << endl;
+            
             }
 /*
             cout << "Line number is: " << line_num << endl;
