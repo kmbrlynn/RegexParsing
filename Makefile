@@ -11,5 +11,5 @@ RegexParsing.o: RegexParsing.cpp Regex.cpp Regex.hpp
 	$(CC) $(FLAGS) -c RegexParsing.cpp
 
 clean:
-	rm -rf ps7a *.o *.~ *.rpt
+	rm -rf ps7a *.o *.~ #*.rpt
 
