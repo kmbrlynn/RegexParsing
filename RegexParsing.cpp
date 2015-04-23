@@ -78,13 +78,13 @@ int main(int argc, char* argv[]) {
 
                 // check for an incomplete boot
                 if (matches[BOOT_STARTED] != "" && is_booting)
-                    outf << "*** Incomplete boot ***" << endl;
+                    outf << "**** Incomplete boot ****" << endl << endl;
 
                 // "log.c.166" was found - means boot has started
                 if (matches[BOOT_STARTED] != "") {
                     is_booting = true;
                     t1 = t;
-                    outf << endl << "=== Device boot ===" << endl;
+                    outf << "=== Device boot ===" << endl;
                     outf << line_num << "(" << in_filename << "): " << time_str;
                     outf << " Boot Start" << endl;
                 }
@@ -98,8 +98,8 @@ int main(int argc, char* argv[]) {
 
                     boost::posix_time::time_duration td;
                     td = t2 - t1;
-                    outf << "\tBoot time: " << td.total_milliseconds() << "ms";
-                    outf << endl;
+                    outf << "\tBoot Time: " << td.total_milliseconds() << "ms";
+                    outf << endl << endl;
                 }
             }
 
