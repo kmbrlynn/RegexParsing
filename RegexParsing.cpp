@@ -1,6 +1,5 @@
-// Copyright Kim Douglas 2015
-// based on: 
-//      demo regex code
+// Copyright (C) Kim Douglas 2015
+// Based on demo regex code: 
 //      Copyright (C) 2015 Fred Martin, fredm@cs.uml.edu for 91.204 Computing IV
 //      Thu Apr 16 11:08:45 2015
 
@@ -17,6 +16,7 @@
 using std::cin;
 using std::cout;
 using std::endl;
+using std::string;
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
@@ -31,28 +31,23 @@ int main(int argc, char* argv[]) {
     std::ifstream inf;
     std::ofstream outf;
 
-    std::string line_str, regex_str;
+    std::string line_str;
     boost::regex re;
     int line_num = 1;
     bool is_booting = false;
-/*
-    cout << "If you get errors when constructing the regex, see:\n";
-    cout << "http://www.boost.org/doc/libs/1_58_0/";
-    cout << "boost/regex/v4/error_type.hpp\n" << endl;
-*/
-    regex_str =                    //   line           [0]
+
+    std::string regex_str =        //   whole line                  [0]
+                                   //   date/time                   [1]
         "([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})"        
-                                   //   date/time      [1]
-                                   // subgroup ----------- [2]
-        "((: )|"                   //   empty          [3]
-        ".([0-9]{3}))"             //   mil            [4]
-                                   // subgroup ------------[5]
-        "((.*log.c.166.*)|"        //   boot start     [6]
-        "(.*oejs.Abstr.*))";       //   boot end       [7]
+                                   // subgroup ---------------------- [2]
+        "((: )|"                   //   empty                       [3]
+        ".([0-9]{3}))"             //   mil                         [4]
+                                   // subgroup ---------------------- [5]
+        "((.*log.c.166.*)|"        //   boot start                  [6]
+        "(.*oejs.Abstr.*))";       //   boot end                    [7]
 
     try {
         re = boost::regex(regex_str); 
-        // cout << "mark_count() is: " << re.mark_count() << endl;
     } catch (boost::regex_error& exc) {
         cout << "Regex constructor failed with code " << exc.code() << endl;
         exit(1);
@@ -66,13 +61,16 @@ int main(int argc, char* argv[]) {
 
     inf.open(in_filename);
     if (inf.is_open()) {
+        // holds boot start & end times
+        ptime t1, t2;
+
         while (getline(inf, line_str)) { 
             boost::smatch matches;
             boost::regex_match(line_str, matches, re); 
-            ptime t1, t2;
 
             if (matches[0].matched) {
-                std::string time_str = matches[DATE_TIME] + "." + matches[MILLI];
+                // for additional time precision, uncomment the rest of line:
+                string time_str = matches[DATE_TIME]/*+ "." + matches[MILLI]*/;
                 ptime t(time_from_string(time_str));
 
                 // check for an incomplete boot
@@ -84,23 +82,20 @@ int main(int argc, char* argv[]) {
                     is_booting = true;   
                     t1 = t;
                     outf << endl << "=== Device boot ===" << endl;              
-                    outf << line_num << "(" << in_filename << ") " << time_str;
-                    outf << " Boot started" << endl;
+                    outf << line_num << "(" << in_filename << "): " << time_str;
+                    outf << " Boot Start" << endl;
                 }
             
                 // "oejs.Abstr" was found - means boot has ended
                 if (matches[BOOT_ENDED] != "") { 
                     is_booting = false;
                     t2 = t;
-                    outf << line_num << "(" << in_filename << ") " << time_str;
-                    outf << " Boot completed" << endl;
+                    outf << line_num << "(" << in_filename << "): " << time_str;
+                    outf << " Boot Completed" << endl;
  
                     time_duration td;
-                    cout << "t1 is: " << t1 << endl;
-                    cout << "t2 is: " << t2 << endl;
                     td = t2 - t1;
-                    outf << "\tBoot time: " << td.minutes();
-                    outf << ":" << td.seconds() << ":" << td.fractional_seconds();
+                    outf << "\tBoot time: " << td.total_milliseconds() << "ms";
                     outf << endl;
                 }
             }
