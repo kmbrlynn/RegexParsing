@@ -7,6 +7,8 @@
 #include <boost/regex.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/date_time/gregorian/gregorian.hpp"
+#include <exception>
+#include <stdexcept>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -25,6 +27,9 @@ const int BOOT_STARTED = 6;
 const int BOOT_ENDED = 7;
 
 int main(int argc, char* argv[]) {
+    string filename = argv[1];
+    std::ifstream infile;
+
     string line_str, regex_str;
     boost::regex re;
     int line_num = 1;
@@ -52,52 +57,52 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    while (getline(cin, line_str)) {
-        line_num++;
+    infile.open(filename);
+    if (infile.is_open()) {
+        while (getline(infile, line_str)) {
+            line_num++;
         
-        boost::smatch matches;
-        boost::regex_match(line_str, matches, re); 
-        ptime t1, t2;
+            boost::smatch matches;
+            boost::regex_match(line_str, matches, re); 
+            ptime t1, t2;
 
-        if (matches[0].matched) {
-          //  cout << "regex for date-time slot is: " << matches[DATE_TIME] << endl;
-            string time_str = matches[DATE_TIME];
-            ptime t(time_from_string(time_str));
+            if (matches[0].matched) {
+                //  cout << "regex for date-time slot is: " << matches[DATE_TIME] << endl;
+                string time_str = matches[DATE_TIME];
+                ptime t(time_from_string(time_str));
 
-            // check for an incomplete boot
-            if (matches[BOOT_STARTED] != "" && is_booting)
-                cout << "*** Incomplete boot ***" << endl;            
+                // check for an incomplete boot
+                if (matches[BOOT_STARTED] != "" && is_booting)
+                    cout << "*** Incomplete boot ***" << endl;            
 
-            // "log.c.166" was found - means boot has started
-            if (matches[BOOT_STARTED] != "" ) {
-                is_booting = true;   
-                t1 = t;
-                cout << endl << "=== Device boot ===" << endl;              
-                cout << line_num << "(device-log): " << t1;
-                cout << " Boot started" << endl;
-            }
+                // "log.c.166" was found - means boot has started
+                if (matches[BOOT_STARTED] != "" ) {
+                    is_booting = true;   
+                    t1 = t;
+                    cout << endl << "=== Device boot ===" << endl;              
+                    cout << line_num << "(device-log): " << t1;
+                    cout << " Boot started" << endl;
+                }
             
-            // "oejs.Abstr" was found - means boot has ended
-            if (matches[BOOT_ENDED] != "") { 
-                is_booting = false;
-                t2 = t;
-                cout << line_num << "(device-log): " << t2;
-                cout << " Boot completed" << endl;
+                // "oejs.Abstr" was found - means boot has ended
+                if (matches[BOOT_ENDED] != "") { 
+                    is_booting = false;
+                    t2 = t;
+                    cout << line_num << "(device-log): " << t2;
+                    cout << " Boot completed" << endl;
  
-                time_duration td;
-                td = t2 - t1;
-           //  td = t - t;
-                cout << "\tBoot time: " << td << endl;
+                    time_duration td;
+                    td = t2 - t1;
+                    //  td = t - t;
+                    cout << "\tBoot time: " << td << endl;
             
+                }
             }
-/*
-            cout << "Line number is: " << line_num << endl;
-            cout << "the matches are: " << endl;
-            for (unsigned i = 0; i < matches.size(); i++) {
-                cout << endl << "index = " << i << "[" << matches[i] << "] ";
-            }
-            cout << endl << endl;
-*/      }
+        }
+        infile.close();
+    } else {
+        string file_error = "Unable to open file: " + filename;
+        throw std::runtime_error(file_error);
     }
 
     return 0;
