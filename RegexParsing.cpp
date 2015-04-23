@@ -14,7 +14,6 @@
 #include <string>
 #include "Regex.hpp"
 
-using std::string;
 using std::cin;
 using std::cout;
 using std::endl;
@@ -27,10 +26,12 @@ const int BOOT_STARTED = 6;
 const int BOOT_ENDED = 7;
 
 int main(int argc, char* argv[]) {
-    string filename = argv[1];
-    std::ifstream infile;
+    std::string in_filename = argv[1];
+    std::string out_filename = in_filename + ".rpt";
+    std::ifstream inf;
+    std::ofstream outf;
 
-    string line_str, regex_str;
+    std::string line_str, regex_str;
     boost::regex re;
     int line_num = 1;
     bool is_booting = false;
@@ -57,9 +58,15 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    infile.open(filename);
-    if (infile.is_open()) {
-        while (getline(infile, line_str)) {
+    outf.open(out_filename);
+    if (!outf.is_open()) {
+        std::string outf_err = "Unable to create file: " + out_filename;
+        throw std::runtime_error(outf_err);
+    }
+
+    inf.open(in_filename);
+    if (inf.is_open()) {
+        while (getline(inf, line_str)) {
             line_num++;
         
             boost::smatch matches;
@@ -68,41 +75,42 @@ int main(int argc, char* argv[]) {
 
             if (matches[0].matched) {
                 //  cout << "regex for date-time slot is: " << matches[DATE_TIME] << endl;
-                string time_str = matches[DATE_TIME];
+                std::string time_str = matches[DATE_TIME];
                 ptime t(time_from_string(time_str));
 
                 // check for an incomplete boot
                 if (matches[BOOT_STARTED] != "" && is_booting)
-                    cout << "*** Incomplete boot ***" << endl;            
+                    outf << "*** Incomplete boot ***" << endl;            
 
                 // "log.c.166" was found - means boot has started
                 if (matches[BOOT_STARTED] != "" ) {
                     is_booting = true;   
                     t1 = t;
-                    cout << endl << "=== Device boot ===" << endl;              
-                    cout << line_num << "(device-log): " << t1;
-                    cout << " Boot started" << endl;
+                    outf << endl << "=== Device boot ===" << endl;              
+                    outf << line_num << "(device-log): " << t1;
+                    outf << " Boot started" << endl;
                 }
             
                 // "oejs.Abstr" was found - means boot has ended
                 if (matches[BOOT_ENDED] != "") { 
                     is_booting = false;
                     t2 = t;
-                    cout << line_num << "(device-log): " << t2;
-                    cout << " Boot completed" << endl;
+                    outf << line_num << "(device-log): " << t2;
+                    outf << " Boot completed" << endl;
  
                     time_duration td;
                     td = t2 - t1;
                     //  td = t - t;
-                    cout << "\tBoot time: " << td << endl;
+                    outf << "\tBoot time: " << td << endl;
             
                 }
             }
         }
-        infile.close();
+        inf.close();
+        outf.close();
     } else {
-        string file_error = "Unable to open file: " + filename;
-        throw std::runtime_error(file_error);
+        std::string inf_err = "Unable to open file: " + in_filename;
+        throw std::runtime_error(inf_err);
     }
 
     return 0;
